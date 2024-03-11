@@ -17,6 +17,8 @@ def check_user_input(input_str, *, valid_resps: tuple = ('y', 'n'), cast_type: t
                 print(f"Valid responses include: {valid_resps}. Try again")
 
 class CardSuit(enum.Enum):
+    """An Enum class to identify the valid types of Card Suits, including Jokers
+    """
     SPADES = enum.auto()
     CLUBS = enum.auto()
     DIAMONDS = enum.auto()
@@ -24,21 +26,28 @@ class CardSuit(enum.Enum):
     JOKER = enum.auto()
 
     def is_black(self):
+        """Returns whether the current suit is black"""
         return self in (self.__class__.SPADES, self.__class__.CLUBS)
     
     def is_red(self):
+        """Returns whether the current suit is red"""
         return self in (self.__class__.DIAMONDS, self.__class__.HEARTS)
     
     def is_joker(self):
+        """Returns whether the current 'suit' is Joker"""
         return self is self.__class__.JOKER
 
     def __str__(self):
+        """Default string representations only include first 3 characters of the suit name,
+        in order to keep string widths consistent
+        """
         return self.name[:3]
     
     def __repr__(self):
         return f"{self.__class__.__name__}.{self.name}"
 
 class CardValue(enum.Enum):
+    """An Enum class to classify the face value of a card, including Jokers"""
     ACE = enum.auto()
     TWO = enum.auto()
     THREE = enum.auto()
@@ -55,12 +64,15 @@ class CardValue(enum.Enum):
     JOKER = enum.auto()
 
     def is_joker(self):
+        """Returns if the 'value' is Joker"""
         return self is self.__class__.JOKER
     
     def is_face(self):
+        """Returns if the value is A, J, Q, K"""
         return self in (self.__class__.ACE, self.__class__.JACK, self.__class__.QUEEN, self.__class__.KING)
 
     def is_num(self):
+        """Returns is the value is numeric"""
         return not self.is_face() and not self.is_joker()
     
     def __gt__(self, other):
@@ -82,6 +94,7 @@ class CardValue(enum.Enum):
         return self.value != other.value
     
     def __str__(self):
+        """Returns a string representation of the value"""
         match self:
             case CardValue.ACE: return "A"
             case CardValue.TWO: return "2"
@@ -102,6 +115,7 @@ class CardValue(enum.Enum):
         return f"{self.__class__.__name__}.{self.name}"
     
 class Card:
+    """A class that describes a single playing card with a suit and value"""
 
     # Color and string formatting for when printing card information
     _black = u"\u001b[47m\u001b[30m"
@@ -112,13 +126,24 @@ class Card:
 
     @classmethod
     def get_empty_str(cls):
+        """Class method to return an empty string the size of the pad length 
+        of the longest string representation of a card.
+        """
         return "".ljust(cls._pad_len)
 
     @classmethod
     def get_pad_len(cls):
+        """Class method to return the pad length 
+        of the longest string representation of a card.
+        """
         return cls._pad_len
     
     def __init__(self, value: CardValue, suit: CardSuit) -> None:
+        """
+        Required params:
+            value: Enum type CardValue
+            suit: Enum type CardSuit
+        """
         self.value = value
         self.suit = suit
 
@@ -129,36 +154,49 @@ class Card:
             self._formatted_color = self._red
     
     def get_value(self):
+        """Returns the CardValue Enum type of this card"""
         return self.value
     
     def get_suit(self):
+        """Returns the CardSuit Enum type of this card"""
         return self.suit
 
     def is_face(self):
+        """Returns bool of whether this card is in values A, J, Q, K"""
         return self.value.is_face()
 
     def is_num(self):
+        """Returns bool of whether this card is in values 2-10"""
         return self.value.is_num()
     
     def is_black(self):
+        """Returns bool of whether this card is Spades or Clubs"""
         return self.suit.is_black()
     
     def is_red(self):
+        """Returns bool of whether this card is Hearts or Diamonds"""
         return self.suit.is_red()
     
     def is_joker(self):
+        """Returns bool of whether this card is a Joker"""
         return self.suit.is_joker()
 
     def is_same_suit(self, other):
+        """Returns bool to determine if both cards have the same suit"""
         return self.suit is other.suit
     
     def is_same_color(self, other):
+        """Returns bool to determine if both cards are the same color"""
         return (self.is_black() and other.is_black()) or (self.is_red() and other.is_red())
 
     def is_dif_color(self, other):
+        """Returns bool to determine if both cards are different colors"""
         return not self.is_same_color(other)
     
     def __str__(self):
+        """Format of the string is '[value] of '[suit]'
+        If the card is a joker, will simply return 'JOK'
+        """
         if self.is_joker():
             return str(self.suit).ljust(self._pad_len)
         else:
@@ -186,6 +224,9 @@ class Card:
         return self.value <= other.value
 
 class Deck(list):
+    """A subclass of list that includes various deck-type methods,
+    such as 'shuffle' and 'draw'
+    """
 
     def __init__(self, deck: list = None, *, include_jokers=False) -> None:
         
@@ -230,7 +271,13 @@ class Deck(list):
         return super().__getitem__(key)
         
 class Player:
-
+    """A class for a single player of a card game
+    
+    Attributes:
+        name: string name of the player
+        hand: the list() of Cards in the player's hand
+    """
+    
     def __init__(self, name: str, hand=[]) -> None:
         self.name = name 
         self.hand = hand
@@ -265,7 +312,18 @@ class CardGame:
         self.players = players
         
 class Solitaire(CardGame):
-
+    """A subclass of CardGame that plays a CLI version of Solitaire
+    
+    Attributes:
+        discard_pile: an initially empty Deck() of cards
+        suit_piles: a dictionary for each suit pile to be filled throughout the game, 
+            where each entry is of the format - key=CardSuit, value=Deck()
+        draw_pile: a full Deck() that is initially shuffled, then delt according to 
+            game rules
+        game_piles: a tuple() 7 piles of playable piles, where each pile is formatted 
+            as a dictionary with each entry containing an 'up' and 'down' Deck() that
+            defines the faceup and facedown card stacks throughout the game
+    """
     _separator_str = " | "
 
     def __init__(self, player) -> None:
@@ -289,20 +347,37 @@ class Solitaire(CardGame):
                 self.game_piles[j]["down"].append(self.draw_pile.draw())
 
     def determine_win_status(self):
+        """Returns True if all suit_piles are complete, False otherwise"""
         for _, suit_pile in self.suit_piles.items():
             if len(suit_pile) != 13:
                 return False
         return True
     
     def draw(self):
-        card = self.draw_pile.draw()
-        self.players[0].add_to_hand(card)
-        print()
-        print(f"You have added a(n) {card} to your hand.")
-        print()
-        self.print_hand()
+        """Executes a draw action. If the draw pile and discard piles are empty,
+        informs the user that there are no more cards
+        """
+        if self.draw_pile.is_empty() and self.discard_pile.is_empty():
+            print()
+            print("ALERT: No more cards to draw")
+            print()
+        else:
+            
+            if self.draw_pile.is_empty():
+                print("Draw pile empty. Shuffling discard pile.")
+                self.discard_pile.shuffle()
+                self.draw_pile = self.discard_pile
+                self.discard_pile = Deck([])
+
+            card = self.draw_pile.draw()
+            self.players[0].add_to_hand(card)
+            print()
+            print(f"You have added a(n) {card} to your hand.")
+            print()
+            self.print_hand()
 
     def place_card(self):
+        """Places a card from the user's hand to a relevant suit pile or game pile of choice"""
         
         player = self.players[0]
 
@@ -331,7 +406,9 @@ class Solitaire(CardGame):
         player.print_hand()
 
     def move_pile(self):
-        
+        """Guides the user through a series of prompts to move a game pile to another
+        game pile, possibly turning over facedown cards if the whole pile is moved
+        """
         self.print_sorted_suit_piles()
         print()
         self.print_game_piles()
@@ -468,7 +545,8 @@ class Solitaire(CardGame):
         print("***************   SUIT PILES   ***************")
 
 def start_game():
-
+    """The executable function that contains all game logic and user interaction"""
+    
     print()
     input("Welcome to solitaire! Press Enter to continue.")
     print()

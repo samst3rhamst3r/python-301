@@ -9,3 +9,22 @@
 #
 # You do not need to implement the actual functions after writing the tests 
 # but of course you can do that, too.
+
+import unittest
+
+class TestStrManipulation(unittest.TestCase):
+
+    def test_upper(self):
+        self.assertEqual(upper("sam"), "SAM")
+    
+    def test_lower(self):
+        self.assertEqual(lower("SAM"), "sam")
+    
+    def test_capitalize(self):
+        self.assertEqual(capitalize("sAm"), "Sam")
+    
+    def test_make_full_name(self):
+        self.assertEqual(make_full_name("sAm", " tUrnEr "), "Sam Turner")
+    
+    def test_valid_input(self):
+        self.assertRaises(ValueError, valid_input, "1")

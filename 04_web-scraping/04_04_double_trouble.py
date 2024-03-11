@@ -4,3 +4,16 @@
 # data that you receive from both of them.
 # E.g.: You could use the Ghibli API to find all ghosts from their films, and
 #       create an opposing team of Ghost Pokémon from the Poke API.
+
+import requests
+from bs4 import BeautifulSoup
+from pprint import pprint
+
+wizard_world = "https://wizard-world-api.herokuapp.com/"
+spells_url = wizard_world + "Spells/"
+wizards_url = wizard_world + "Wizards/"
+
+spells = requests.get(spells_url).json()
+wizards = requests.get(wizards_url).json()
+
+print(f"{wizards[0]['lastName']} casts {spells[0]['name']}")

@@ -13,3 +13,26 @@
 #    should NEVER terminate with a Traceback.
 #     a) Which exception can you expect to encounter? Why?
 #     b) How do you catch it to avoid the program from terminating with a traceback?
+
+import pathlib
+
+base_path = pathlib.Path(__file__).parent / "books"
+
+with open(base_path / "war_and_peace.txt", 'r') as war:
+    war_txt = war.read()
+
+with open(base_path / "crime_and_punishment.txt", 'w') as pride:
+    pride.write("")
+
+try:
+    pride = open(base_path / "pride_and_prejudice.txt", 'r')
+    crime = open(base_path / "crime_and_punishment.txt", 'r')
+
+    print(war_txt[0])
+    print(pride.read()[0])
+    print(crime.read()[0])
+except IndexError as e:
+    print(e)
+finally:
+    pride.close()
+    crime.close()

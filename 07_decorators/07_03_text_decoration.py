@@ -7,3 +7,19 @@
 # ******************************
 # Hello
 # ******************************
+
+def decorate(char):
+    def decorator_func(func):
+        def wrapper(*args, **kwargs):
+            s = char * 20 + "\n"
+            s += func(*args, **kwargs) + "\n"
+            s += char * 20
+            return s
+        return wrapper
+    return decorator_func
+
+@decorate("*")
+def say_hello():
+    return "Hello!"
+
+print(say_hello())

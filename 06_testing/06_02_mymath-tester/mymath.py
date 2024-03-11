@@ -5,7 +5,6 @@
 class CustomZeroDivsionError(Exception):
     pass
 
-
 def subtract_divide(dividend, x, y):
     try:
         z = x - y
